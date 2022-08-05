@@ -6,9 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
-coco/
-360_dataset/
-visualization/
+.idea/
+coco/*
+360_dataset/*
+visualization/*
+
 
 # Distribution / packaging
 .Python

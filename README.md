@@ -27,7 +27,7 @@ Here are some options that you can use:
 So to train on a GPU with mosaic.jpg as my style image, MS-COCO downloaded into a folder named coco, and wanting to visualize a sample image throughout training, I would use the following command: 
 
 ```bash
-$ python style.py train --style-image style_imgs/mosaic.jpg --dataset coco --gpu 1 --visualize 1
+$ python style.py train --style-image style_imgs/mosaic_old.jpg --dataset coco --gpu 1 --visualize 1
 ```
 
 ### Evaluation
