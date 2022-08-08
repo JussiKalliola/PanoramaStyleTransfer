@@ -169,10 +169,10 @@ if __name__ == '__main__':
         # Returns cubes in the following order: front, right, back, left, top, bottom
         cubemap=convert_to_cubemap(im_path=im_path, width=300, height=300, FOV=120)
         save_cubemaps(cubemap=cubemap, save_path=cubemap_save_path)
-        #new_perspectives, masks = get_new_perspectives_and_masks(cubemap)
+        new_perspectives, masks = get_new_perspectives_and_masks(cubemap)
 
-        #masks_save_path = os.path.join(cubemap_save_path, 'masks')
-        #save_cubemaps(cubemap=masks, save_path=masks_save_path)
+        masks_save_path = os.path.join(cubemap_save_path, 'masks')
+        save_cubemaps(cubemap=masks, save_path=masks_save_path)
 
         #new_perspective_save_path = os.path.join(cubemap_save_path, 'projections')
         #save_cubemaps(cubemap=new_perspectives, save_path=new_perspective_save_path)

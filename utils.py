@@ -8,6 +8,7 @@ import numpy as np
 # New perspectives for each image in cubemap
 from perspective2perspectives.pers2pers import equir2pers, pers2equir
 
+# Parameters for the perspective transforms
 perspective_params = {
     '1': {
         '4': {'theta': 90, 'phi': -90, 'rotation': 0},
@@ -47,6 +48,16 @@ perspective_params = {
     }
 }
 
+# Cubemap params: equi => cubemap or cubemap => equi
+cube_params = {
+    '3': { 'theta': 0, 'phi': 0 },
+    '5': { 'theta': 90, 'phi': 0 },
+    '6': { 'theta': 180, 'phi': 0 },
+    '1': { 'theta': -90, 'phi': 0 },
+    '2': { 'theta': 0, 'phi': 90 },
+    '4': { 'theta': 0, 'phi': -90 }
+}
+
 # opens and returns image file as a PIL image (0-255)
 def load_image(filename):
     img = Image.open(filename)
@@ -60,6 +71,14 @@ def save_image(filename, data):
     img = ((img * std + mean).transpose(1, 2, 0)*255.0).clip(0, 255).astype("uint8")
     img = Image.fromarray(img)
     img.save(filename)
+
+def transform_image_to_original(data):
+    std = np.array([0.229, 0.224, 0.225]).reshape((3, 1, 1))
+    mean = np.array([0.485, 0.456, 0.406]).reshape((3, 1, 1))
+    img = data.clone().numpy()
+    img = ((img * std + mean).transpose(1, 2, 0)*255.0).clip(0, 255).astype("uint8")
+    #img = Image.fromarray(img)
+    return img
 
 def get_perspective(images):
     im1, im1_id = images[0]
@@ -81,6 +100,25 @@ def get_perspective(images):
         new_mask = ndimage.rotate(new_mask, perspective_params[im1_id][im2_id]['rotation'])
 
     return new_perspective, new_mask
+
+def cubemap_to_equirectangular(cubemap):
+    width=1500
+    height=750
+    eq_im = np.zeros((height,width, 3))
+
+    for key in cubemap.keys():
+        eq, _ = pers2equir(im=cubemap[key], FOV=120, theta=cube_params[key]['theta'], phi=cube_params[key]['phi'], width=width, height=height)
+        for y in range(height):
+            for x in range(width):
+                if np.sum(eq_im[y,x,:]) > 0 and np.sum(eq[y,x,:]) > 0:
+                    eq_im[y, x, :]=np.mean(np.array([eq_im[y,x,:], eq[y,x,:]]), axis=0)
+                else:
+                    eq_im[y, x, :] += eq[y, x, :]
+        #indices=np.nonzero(eq)
+        #eq_im[indices]=eq[indices]
+    eq_im=(255*(eq_im - np.min(eq_im))/np.ptp(eq_im)).astype(np.uint8)
+
+    return eq_im
 
 # Calculate Gram matrix (G = FF^T)
 def gram(x):

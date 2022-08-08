@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Tuple, Optional, Union, Dict
-from pickle import load as pickle_load
 from pathlib import Path
 from torch.utils.data import Dataset
 import numpy as np
@@ -11,7 +9,7 @@ import cv2
 
 from torchvision import transforms
 import utils
-from PIL import Image
+from tqdm import tqdm
 
 IMAGE_SIZE = 256
 
@@ -45,10 +43,10 @@ class MyDataset(Dataset):
 
         folders = []
         [folders.append(os.path.split(name)[1]) for name in os.listdir(input_path) if os.path.isdir(os.path.join(input_path,name))]
-        print(f'len folders : {len(folders)}')
-        for i, folder in enumerate(folders):
-            if i > 300:
-                break
+
+        for i, folder in enumerate(tqdm(folders)):
+            # if i > 20:
+            #      break
             for pair in img_pairs:
                 x, file_id1 = self._load_file(os.path.join(input_path, folder, f'{pair[0]}.png'))
                 y, file_id2 = self._load_file(os.path.join(input_path, folder, f'{pair[1]}.png'))
@@ -60,7 +58,7 @@ class MyDataset(Dataset):
     def _load_file(self, file_path: Path):
 
         file_name = os.path.split(file_path)[1].split('.')[0]
-        im = Image.open(file_path)
+        im = utils.load_image(file_path)
         transformed_im = self.dataset_transform(im)
         return (transformed_im, int(file_name))
 
